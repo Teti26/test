@@ -102,6 +102,7 @@ export function initNBackGame() {
     if (sequence.length >= 20) {
       // Save best accuracy percentage
       if (best == null || accPct > best) localStorage.setItem(STORAGE_KEY, String(accPct));
+      if (window.pgReport) window.pgReport('nback', { accPct, length: sequence.length, hits, falseAlarms, misses, correctRejections });
     }
     statsEl.innerHTML = [
       `Длина: <strong>${sequence.length}</strong>`,

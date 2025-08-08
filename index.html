@@ -11,6 +11,7 @@
     <header class="site-header">
       <h1>Развивающие психологические игры</h1>
       <p class="subtitle">Тренируйте внимание, память, скорость реакции и саморегуляцию</p>
+      <div class="controls"><a href="/dashboard" style="color:#7b8cff">К кабинету</a></div>
     </header>
 
     <div class="layout">
@@ -37,6 +38,7 @@
             <li><strong>Дыхание:</strong> метроном для дыхательных циклов (вдох — задержка — выдох).</li>
           </ul>
           <p class="disclaimer">Не является медицинским инструментом. Используйте для самотренировки и интереса.</p>
+          <p class="disclaimer" id="assign-hint" style="display:none;">Это задание назначено психологом. Игровые результаты будут сохранены в кабинете.</p>
         </section>
 
         <section id="reaction" class="view" aria-labelledby="reaction-title">
@@ -120,5 +122,26 @@
     </footer>
 
     <script type="module" src="/js/app.js"></script>
+    <script>
+      // If a link like /app#reaction?child=ID is opened, set active child for reporting
+      (function(){
+        const hash = window.location.hash || '';
+        const paramsIdx = hash.indexOf('?');
+        if (paramsIdx !== -1) {
+          const qs = new URLSearchParams(hash.slice(paramsIdx+1));
+          const child = qs.get('child');
+          if (child) localStorage.setItem('pg:activeChildId', child);
+        }
+        if (hash.startsWith('#')) {
+          const id = hash.slice(1).split('?')[0];
+          const btn = document.querySelector(`.nav-btn[data-target="${id}"]`);
+          if (btn) btn.click();
+        }
+        if (localStorage.getItem('pg:activeChildId')) {
+          const hint = document.getElementById('assign-hint');
+          if (hint) hint.style.display = 'block';
+        }
+      })();
+    </script>
   </body>
 </html>

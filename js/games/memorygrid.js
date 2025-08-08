@@ -76,6 +76,8 @@ export function initMemoryGridGame() {
     const best = Number(localStorage.getItem(STORAGE_KEY)) || 0;
     if (level - 1 > best) localStorage.setItem(STORAGE_KEY, String(level - 1));
     updateStats(true);
+    // report level up
+    if (window.pgReport) window.pgReport('memory', { level: level - 1, gridSize });
     // Next level
     prepareLevel();
   }
@@ -95,6 +97,7 @@ export function initMemoryGridGame() {
   function fail() {
     inputEnabled = false;
     updateStats(false);
+    if (window.pgReport) window.pgReport('memory', { failAtLevel: level, gridSize });
   }
 
   function updateStats(success = null) {

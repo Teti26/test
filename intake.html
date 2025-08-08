@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Входное тестирование • ПсихоИгры</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <style>
+      .container { max-width: 800px; margin: 24px auto; }
+      .field { display: grid; gap: 6px; margin-bottom: 12px; }
+      .field input, .field select, .field textarea { padding: 10px 12px; border-radius: 10px; border: 1px solid #3a3f82; background: #1b1f4a; color: var(--text); }
+      .two { display:flex; gap:12px; }
+      .two > * { flex:1; }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>Входное тестирование</h1>
+      <p class="subtitle">Заполните информацию для первичной оценки</p>
+    </header>
+    <main class="layout" style="grid-template-columns: 1fr;">
+      <section class="card container">
+        <div class="two">
+          <div class="field">
+            <label>Ребёнок</label>
+            <select id="child"></select>
+          </div>
+          <div class="field">
+            <label>Класс/группа</label>
+            <input id="grade" placeholder="Например: 2 класс" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Цели обращения</label>
+          <textarea id="goals" rows="3" placeholder="Например: трудности с вниманием, импульсивность…"></textarea>
+        </div>
+        <div class="field">
+          <label>Медицинские особенности</label>
+          <textarea id="med" rows="3" placeholder="Диагнозы, лечение, если есть"></textarea>
+        </div>
+        <div class="two">
+          <div class="field">
+            <label>Сон</label>
+            <select id="sleep"><option>Хороший</option><option>Средний</option><option>Нарушен</option></select>
+          </div>
+          <div class="field">
+            <label>Настроение</label>
+            <select id="mood"><option>Стабильное</option><option>Переменное</option><option>Пониженное</option></select>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="submit" class="primary">Отправить</button>
+          <span id="msg" style="color:var(--muted)"></span>
+        </div>
+      </section>
+
+      <section class="card container">
+        <h2>Последние анкеты</h2>
+        <div id="list"></div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div>© 2025 ПсихоИгры</div>
+      <div><a href="/dashboard">К кабинету</a></div>
+    </footer>
+
+    <script>
+      async function api(method, url, body) {
+        const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+        if (res.status === 401) { window.location.href = '/login'; return; }
+        const data = await res.json().catch(()=>({}));
+        if (!res.ok) throw new Error(data.error || 'error');
+        return data;
+      }
+
+      async function loadChildren() {
+        // Derive children from assignments list or sessions; simplest: use assignments to get child ids
+        const assigns = await api('GET', '/api/parent/assignments');
+        const childMap = new Map();
+        for (const a of assigns) childMap.set(a.child_id, a.child_name);
+        const sel = document.getElementById('child');
+        sel.innerHTML = '';
+        for (const [id, name] of childMap.entries()) {
+          const opt = document.createElement('option'); opt.value = id; opt.textContent = name; sel.appendChild(opt);
+        }
+      }
+
+      async function loadIntakes() {
+        const list = await api('GET', '/api/parent/intake');
+        const box = document.getElementById('list');
+        box.innerHTML = '';
+        for (const i of list) {
+          const div = document.createElement('div');
+          const dt = new Date(i.created_at).toLocaleString();
+          div.className = 'card';
+          div.style.marginTop = '8px';
+          div.innerHTML = `<div><strong>${i.child_name}</strong> • ${dt}</div><pre style="white-space:pre-wrap;">${JSON.stringify(i.payload, null, 2)}</pre>`;
+          box.appendChild(div);
+        }
+      }
+
+      document.getElementById('submit').addEventListener('click', async () => {
+        const payload = {
+          grade: document.getElementById('grade').value.trim(),
+          goals: document.getElementById('goals').value.trim(),
+          medical: document.getElementById('med').value.trim(),
+          sleep: document.getElementById('sleep').value,
+          mood: document.getElementById('mood').value,
+        };
+        const childId = document.getElementById('child').value;
+        const msg = document.getElementById('msg');
+        msg.textContent = 'Отправка…';
+        try {
+          await api('POST', '/api/parent/intake', { childId, payload });
+          msg.textContent = 'Готово!';
+          await loadIntakes();
+        } catch (e) {
+          msg.textContent = 'Ошибка: ' + e.message;
+        }
+      });
+
+      (async function init(){
+        try {
+          await loadChildren();
+          await loadIntakes();
+        } catch { window.location.href = '/login'; }
+      })();
+    </script>
+  </body>
+</html>

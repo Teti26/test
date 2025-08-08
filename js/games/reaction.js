@@ -49,11 +49,15 @@ export function initReactionGame() {
       const rt = Math.round(performance.now() - readyAt);
       trials.push(rt);
       const best = Number(localStorage.getItem(STORAGE_KEY)) || Infinity;
+      let updated = false;
       if (rt < best) {
         localStorage.setItem(STORAGE_KEY, String(rt));
+        updated = true;
       }
       setArena(`Результат: ${rt} мс. Ещё раз?`, '');
       updateStats();
+      // report
+      if (window.pgReport) window.pgReport('reaction', { last: rt, best: updated ? rt : Math.min(best, rt) });
       state = 'idle';
     }
   }
