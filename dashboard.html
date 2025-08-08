@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Кабинет • ПсихоИгры</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <style>
+      .grid { display: grid; gap: 16px; grid-template-columns: repeat(12, minmax(0,1fr)); }
+      .col-4 { grid-column: span 4 / span 4; }
+      .col-6 { grid-column: span 6 / span 6; }
+      .col-8 { grid-column: span 8 / span 8; }
+      .col-12 { grid-column: span 12 / span 12; }
+      .table { width:100%; border-collapse: collapse; }
+      .table th, .table td { padding: 8px; border-bottom: 1px solid #2a2f6a; text-align:left; }
+      .pill { padding: 2px 8px; border-radius: 999px; background:#1e234f; border:1px solid #343a7a; color:#c8ccff; }
+      .link { color: #7b8cff; }
+      .inline { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>Кабинет</h1>
+      <p class="subtitle">Управление занятиями и заданиями</p>
+      <div class="controls"><a href="/app" class="link">К играм</a><a href="/login" class="link" id="logout">Выйти</a></div>
+    </header>
+
+    <main class="layout" style="grid-template-columns: 1fr;">
+      <div id="role-psych" class="grid" style="display:none;">
+        <section class="card col-6">
+          <h2>Ученики</h2>
+          <div class="inline">
+            <input id="add-parent-email" placeholder="Email родителя" />
+            <input id="add-child-name" placeholder="Имя ребёнка" />
+            <input id="add-child-birth" type="date" />
+            <button id="btn-add-student">Добавить</button>
+          </div>
+          <table class="table" id="students-table">
+            <thead><tr><th>Ребёнок</th><th>Родитель</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </section>
+        <section class="card col-6">
+          <h2>Назначения</h2>
+          <div class="inline">
+            <select id="assign-child"></select>
+            <select id="assign-game">
+              <option value="reaction">Реакция</option>
+              <option value="stroop">Струп</option>
+              <option value="nback">N-back</option>
+              <option value="memory">Память (сетка)</option>
+              <option value="breathing">Дыхание</option>
+            </select>
+            <input id="assign-notes" placeholder="Заметки" />
+            <button id="btn-assign">Назначить</button>
+          </div>
+          <table class="table" id="assignments-table">
+            <thead><tr><th>Дата</th><th>Ребёнок</th><th>Игра</th><th>Заметки</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </section>
+        <section class="card col-12">
+          <h2>Сессии</h2>
+          <div class="inline">
+            <select id="sess-child"></select>
+            <input id="sess-title" placeholder="Тема занятия" />
+            <input id="sess-dt" type="datetime-local" />
+            <input id="sess-url" placeholder="Ссылка (Zoom/Meet)" />
+            <button id="btn-sess">Назначить</button>
+          </div>
+          <table class="table" id="sessions-table">
+            <thead><tr><th>Дата</th><th>Ребёнок</th><th>Тема</th><th>Ссылка</th><th>Статус</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </section>
+      </div>
+
+      <div id="role-parent" class="grid" style="display:none;">
+        <section class="card col-12">
+          <h2>Ваши задания</h2>
+          <table class="table" id="parent-assignments">
+            <thead><tr><th>Дата</th><th>Ребёнок</th><th>Игра</th><th>Действие</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </section>
+        <section class="card col-6">
+          <h2>Ближайшие занятия</h2>
+          <table class="table" id="parent-sessions">
+            <thead><tr><th>Дата</th><th>Ребёнок</th><th>Тема</th><th>Ссылка</th><th>Статус</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </section>
+        <section class="card col-6">
+          <h2>Прогресс (последние результаты)</h2>
+          <div id="parent-results"></div>
+        </section>
+        <section class="card col-12">
+          <h2>Входное тестирование</h2>
+          <a class="link" href="/intake">Заполнить анкету →</a>
+        </section>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div>© 2025 ПсихоИгры</div>
+      <div><a href="/app">Игры</a></div>
+    </footer>
+
+    <script>
+      async function api(method, url, body) {
+        const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: body ? JSON.stringify(body) : undefined });
+        if (res.status === 401) { window.location.href = '/login'; return; }
+        const data = await res.json().catch(()=>({}));
+        if (!res.ok) throw new Error(data.error || 'error');
+        return data;
+      }
+
+      document.getElementById('logout').addEventListener('click', async (e) => {
+        e.preventDefault();
+        await api('POST', '/api/auth/logout');
+        window.location.href = '/login';
+      });
+
+      async function init() {
+        // Probe role by hitting an endpoint: try psych first; if forbidden, parent
+        try {
+          await api('GET', '/api/psych/students');
+          document.getElementById('role-psych').style.display = 'grid';
+          loadPsych();
+          return;
+        } catch (e) { /* ignore */ }
+        try {
+          await api('GET', '/api/parent/assignments');
+          document.getElementById('role-parent').style.display = 'grid';
+          loadParent();
+          return;
+        } catch (e) {
+          window.location.href = '/login';
+        }
+      }
+
+      async function loadPsych() {
+        const students = await api('GET', '/api/psych/students');
+        const tbody = document.querySelector('#students-table tbody');
+        const childSelect = document.getElementById('assign-child');
+        const sessChild = document.getElementById('sess-child');
+        tbody.innerHTML = '';
+        childSelect.innerHTML = '';
+        sessChild.innerHTML = '';
+        for (const s of students) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${s.name}</td><td>${s.parent_name}</td><td><button data-id="${s.id}" class="secondary">Удалить</button></td>`;
+          tr.querySelector('button').addEventListener('click', async () => {
+            await api('DELETE', '/api/psych/students/' + s.id);
+            loadPsych();
+          });
+          tbody.appendChild(tr);
+          for (const sel of [childSelect, sessChild]) {
+            const opt = document.createElement('option');
+            opt.value = s.id; opt.textContent = s.name; sel.appendChild(opt);
+          }
+        }
+
+        const assigns = await api('GET', '/api/psych/assignments');
+        const abody = document.querySelector('#assignments-table tbody');
+        abody.innerHTML = '';
+        for (const a of assigns) {
+          const tr = document.createElement('tr');
+          const dt = new Date(a.created_at || Date.now()).toLocaleString();
+          tr.innerHTML = `<td>${dt}</td><td>${a.child_name}</td><td>${a.game_name}</td><td>${a.notes || ''}</td>`;
+          abody.appendChild(tr);
+        }
+
+        const sessions = await api('GET', '/api/psych/sessions');
+        const sbody = document.querySelector('#sessions-table tbody');
+        sbody.innerHTML = '';
+        for (const s of sessions) {
+          const dt = s.scheduled_at ? new Date(s.scheduled_at).toLocaleString() : '—';
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${dt}</td><td>${s.child_name}</td><td>${s.title || ''}</td><td>${s.join_url ? `<a class=\"link\" href=\"${s.join_url}\" target=\"_blank\">Ссылка</a>` : '—'}</td><td><span class="pill">${s.status}</span></td>`;
+          sbody.appendChild(tr);
+        }
+      }
+
+      document.getElementById('btn-add-student')?.addEventListener('click', async () => {
+        const parentEmail = document.getElementById('add-parent-email').value.trim();
+        const childName = document.getElementById('add-child-name').value.trim();
+        const childBirthdate = document.getElementById('add-child-birth').value || null;
+        if (!parentEmail || !childName) return alert('Укажите email и имя ребёнка');
+        await api('POST', '/api/psych/students', { parentEmail, childName, childBirthdate });
+        loadPsych();
+      });
+
+      document.getElementById('btn-assign')?.addEventListener('click', async () => {
+        const childId = document.getElementById('assign-child').value;
+        const gameKey = document.getElementById('assign-game').value;
+        const notes = document.getElementById('assign-notes').value.trim();
+        await api('POST', '/api/psych/assignments', { childId, gameKey, notes });
+        loadPsych();
+      });
+
+      document.getElementById('btn-sess')?.addEventListener('click', async () => {
+        const childId = document.getElementById('sess-child').value;
+        const title = document.getElementById('sess-title').value.trim();
+        const scheduledAt = document.getElementById('sess-dt').value;
+        const joinUrl = document.getElementById('sess-url').value.trim();
+        await api('POST', '/api/psych/sessions', { childId, title, scheduledAt, joinUrl });
+        loadPsych();
+      });
+
+      async function loadParent() {
+        const assigns = await api('GET', '/api/parent/assignments');
+        const tbody = document.querySelector('#parent-assignments tbody');
+        tbody.innerHTML = '';
+        for (const a of assigns) {
+          const tr = document.createElement('tr');
+          const dt = new Date(a.created_at || Date.now()).toLocaleString();
+          const url = `/app#${a.game_key}?child=${encodeURIComponent(a.child_id)}`;
+          tr.innerHTML = `<td>${dt}</td><td>${a.child_name}</td><td>${a.game_name}</td><td><a class="link" href="${url}">Играть →</a></td>`;
+          tbody.appendChild(tr);
+        }
+        const sessions = await api('GET', '/api/parent/sessions');
+        const sbody = document.querySelector('#parent-sessions tbody');
+        sbody.innerHTML = '';
+        for (const s of sessions) {
+          const dt = s.scheduled_at ? new Date(s.scheduled_at).toLocaleString() : '—';
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${dt}</td><td>${s.child_name}</td><td>${s.title || ''}</td><td>${s.join_url ? `<a class=\"link\" href=\"${s.join_url}\" target=\"_blank\">Подключиться</a>` : '—'}</td><td><span class="pill">${s.status}</span></td>`;
+          sbody.appendChild(tr);
+        }
+        const results = await api('GET', '/api/parent/results');
+        const box = document.getElementById('parent-results');
+        box.innerHTML = '';
+        for (const r of results) {
+          const dt = new Date(r.created_at).toLocaleString();
+          const div = document.createElement('div');
+          div.className = 'card';
+          div.style.marginTop = '8px';
+          div.innerHTML = `<div><strong>${r.child_name}</strong> • ${r.game_name} • ${dt}</div><pre style="white-space:pre-wrap;">${JSON.stringify(r.payload, null, 2)}</pre>`;
+          box.appendChild(div);
+        }
+      }
+
+      init();
+    </script>
+  </body>
+</html>

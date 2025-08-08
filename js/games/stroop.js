@@ -101,6 +101,9 @@ export function initStroopGame() {
     if (!best) shouldUpdate = true; else if (acc > best.acc) shouldUpdate = true; else if (acc === best.acc && avgRt < best.avgRt) shouldUpdate = true;
     if (shouldUpdate) localStorage.setItem(STORAGE_KEY, JSON.stringify({ acc, avgRt }));
 
+    // report
+    if (window.pgReport) window.pgReport('stroop', { acc, avgRt });
+
     updateStats();
   }
 

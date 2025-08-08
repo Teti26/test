@@ -4,6 +4,17 @@ import { initNBackGame } from './games/nback.js';
 import { initMemoryGridGame } from './games/memorygrid.js';
 import { initBreathing } from './games/breathing.js';
 
+async function postResult(gameKey, result) {
+  try {
+    const childId = localStorage.getItem('pg:activeChildId');
+    if (!childId) return; // not logged
+    await fetch('/api/results', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ childId, gameKey, result })
+    });
+  } catch {}
+}
+
 function setupNavigation() {
   const buttons = Array.from(document.querySelectorAll('.nav-btn'));
   const views = Array.from(document.querySelectorAll('.view'));
@@ -28,6 +39,8 @@ function setupNavigation() {
 }
 
 function init() {
+  // expose reporter for games to call
+  window.pgReport = postResult;
   setupNavigation();
   initReactionGame();
   initStroopGame();
