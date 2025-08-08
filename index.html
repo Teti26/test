@@ -22,6 +22,8 @@
           <li><button class="nav-btn" data-target="nback" aria-controls="nback">🔁 N-back</button></li>
           <li><button class="nav-btn" data-target="memory" aria-controls="memory">🧩 Память (сетка)</button></li>
           <li><button class="nav-btn" data-target="breathing" aria-controls="breathing">🌬️ Дыхание</button></li>
+          <li><button class="nav-btn" data-target="dashboard" aria-controls="dashboard">👤 Кабинет</button></li>
+          <li><button class="nav-btn" data-target="entry" aria-controls="entry">🧪 Входной тест</button></li>
         </ul>
       </nav>
 
@@ -111,6 +113,67 @@
             </div>
           </div>
         </section>
+
+        <section id="dashboard" class="view" aria-labelledby="dashboard-title">
+          <h2 id="dashboard-title">Кабинет</h2>
+          <div class="card">
+            <div class="flex-row" style="justify-content: space-between; align-items: center; gap: 8px;">
+              <div id="user-info"></div>
+              <button id="logout-btn" class="secondary" style="display:none;">Выйти</button>
+            </div>
+            <div id="auth-box" class="auth-box">
+              <div class="auth-col">
+                <h3>Вход</h3>
+                <form id="login-form" class="auth-form">
+                  <input name="email" type="email" placeholder="Email" required />
+                  <input name="password" type="password" placeholder="Пароль" required />
+                  <button type="submit">Войти</button>
+                </form>
+              </div>
+              <div class="auth-col">
+                <h3>Регистрация</h3>
+                <form id="register-form" class="auth-form">
+                  <input name="name" placeholder="Имя" required />
+                  <input name="email" type="email" placeholder="Email" required />
+                  <input name="password" type="password" placeholder="Пароль" required />
+                  <label>Роль: <select name="role"><option value="student">Ученик</option><option value="psychologist">Психолог</option></select></label>
+                  <button type="submit">Зарегистрироваться</button>
+                </form>
+              </div>
+            </div>
+
+            <div id="psychologist" style="display:none;">
+              <h3>Календарь занятий (психолог)</h3>
+              <form id="create-event-form" class="controls">
+                <label>Ученик: <select id="students-select" name="studentId"></select></label>
+                <label>Дата и время: <input type="datetime-local" name="datetime" required /></label>
+                <label>Длительность (мин): <input type="number" name="duration" value="60" min="15" step="5" /></label>
+                <label>Ссылка: <input type="url" name="link" placeholder="https://..." /></label>
+                <button type="submit">Создать</button>
+              </form>
+              <ul id="events-list-psy"></ul>
+            </div>
+
+            <div id="student" style="display:none;">
+              <h3>Мои занятия</h3>
+              <ul id="events-list-stu"></ul>
+              <h3>Моя статистика</h3>
+              <ul id="stats-list-stu"></ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="entry" class="view" aria-labelledby="entry-title">
+          <h2 id="entry-title">Входное тестирование</h2>
+          <div class="card">
+            <p>Короткая батарея для оценки уровня интеллекта и когнитивных способностей на базе мини-игр.</p>
+            <div class="controls">
+              <button id="entry-start">Начать тест</button>
+              <span id="entry-status" class="muted"></span>
+            </div>
+            <p class="muted">Совет: найдите тихое место, отключите уведомления, используйте один и тот же браузер/устройство.</p>
+          </div>
+        </section>
       </main>
     </div>
 
@@ -120,5 +183,8 @@
     </footer>
 
     <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/dashboard.js"></script>
+    <script type="module" src="js/entrytest.js"></script>
   </body>
 </html>

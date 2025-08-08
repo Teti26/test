@@ -3,6 +3,14 @@ import { initStroopGame } from './games/stroop.js';
 import { initNBackGame } from './games/nback.js';
 import { initMemoryGridGame } from './games/memorygrid.js';
 import { initBreathing } from './games/breathing.js';
+import { initDashboards } from './dashboard.js';
+import { initEntryTest } from './entrytest.js';
+
+async function postStat(module, metrics) {
+  try {
+    await fetch('/api/stats', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ module, metrics }) });
+  } catch {}
+}
 
 function setupNavigation() {
   const buttons = Array.from(document.querySelectorAll('.nav-btn'));
@@ -29,11 +37,13 @@ function setupNavigation() {
 
 function init() {
   setupNavigation();
-  initReactionGame();
-  initStroopGame();
-  initNBackGame();
-  initMemoryGridGame();
+  initReactionGame({ onResult: (ms) => postStat('reaction', { reactionMs: ms }) });
+  initStroopGame({ onFinish: (summary) => postStat('stroop', { stroop: summary }) });
+  initNBackGame({ onUpdate: (summary) => postStat('nback', { nback: summary }) });
+  initMemoryGridGame({ onLevel: (level) => postStat('memory', { memory: { level } }) });
   initBreathing();
+  initDashboards();
+  initEntryTest();
 }
 
 window.addEventListener('DOMContentLoaded', init);

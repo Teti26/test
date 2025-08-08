@@ -8,7 +8,7 @@ const COLORS = [
 
 const STORAGE_KEY = 'pg:stroop:best';
 
-export function initStroopGame() {
+export function initStroopGame(hooks = {}) {
   const wordEl = document.getElementById('stroop-word');
   const optionsEl = document.getElementById('stroop-options');
   const startBtn = document.getElementById('stroop-start');
@@ -90,6 +90,7 @@ export function initStroopGame() {
   }
 
   function finish() {
+    if (hooks.onFinish) hooks.onFinish({ acc: Math.round(100 * results.filter(r => r.correct).length / results.length) });
     wordEl.textContent = 'Готово!';
     wordEl.style.color = '#cbd1ff';
     const acc = Math.round(100 * results.filter(r => r.correct).length / results.length);

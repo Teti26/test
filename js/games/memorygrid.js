@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'pg:memory:bestLevel';
 
-export function initMemoryGridGame() {
+export function initMemoryGridGame(hooks = {}) {
   const gridEl = document.getElementById('memory-grid');
   const startBtn = document.getElementById('memory-start');
   const resetBtn = document.getElementById('memory-reset');
@@ -76,6 +76,7 @@ export function initMemoryGridGame() {
     const best = Number(localStorage.getItem(STORAGE_KEY)) || 0;
     if (level - 1 > best) localStorage.setItem(STORAGE_KEY, String(level - 1));
     updateStats(true);
+    if (hooks.onLevel) hooks.onLevel(level - 1);
     // Next level
     prepareLevel();
   }

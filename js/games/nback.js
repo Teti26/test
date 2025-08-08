@@ -1,7 +1,7 @@
 const LETTERS = 'ABCDEFGHJKLMNPQRTUVWXYZ'.split('');
 const STORAGE_KEY = 'pg:nback:best';
 
-export function initNBackGame() {
+export function initNBackGame(hooks = {}) {
   const streamEl = document.getElementById('nback-stream');
   const startBtn = document.getElementById('nback-start');
   const matchBtn = document.getElementById('nback-match');
@@ -95,6 +95,7 @@ export function initNBackGame() {
   }
 
   function updateStats() {
+    if (hooks.onUpdate) hooks.onUpdate({ acc: Math.round(((hits + correctRejections) / Math.max(1, sequence.length)) * 100) });
     const totalTargets = countTargets(sequence);
     const acc = (hits + correctRejections) / Math.max(1, sequence.length);
     const accPct = Math.round(acc * 100);

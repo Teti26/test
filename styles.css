@@ -133,9 +133,16 @@ select, input[type="range"] { vertical-align: middle; }
   margin: 16px; padding: 12px; border-top: 1px solid #2a2f6a; color: #cbd1ff; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
 }
 
+.auth-box { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 12px; }
+.auth-form { display: grid; gap: 8px; }
+.auth-form input, .auth-form select { background: #141842; border: 1px solid #2a2f6a; color: var(--text); padding: 10px 12px; border-radius: 10px; }
+.flex-row { display: flex; gap: 8px; }
+.muted { color: var(--muted); }
+
 /* Responsive */
 @media (max-width: 960px) {
   .layout { grid-template-columns: 1fr; }
   .sidebar { position: static; }
   .stroop-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .auth-box { grid-template-columns: 1fr; }
 }

@@ -1,6 +1,6 @@
 const STORAGE_KEY = 'pg:reaction:bestMs';
 
-export function initReactionGame() {
+export function initReactionGame(hooks = {}) {
   const arena = document.getElementById('reaction-arena');
   const startBtn = document.getElementById('reaction-start');
   const resetBtn = document.getElementById('reaction-reset');
@@ -48,6 +48,7 @@ export function initReactionGame() {
     } else if (state === 'ready') {
       const rt = Math.round(performance.now() - readyAt);
       trials.push(rt);
+      if (hooks.onResult) hooks.onResult(rt);
       const best = Number(localStorage.getItem(STORAGE_KEY)) || Infinity;
       if (rt < best) {
         localStorage.setItem(STORAGE_KEY, String(rt));
