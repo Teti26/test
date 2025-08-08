@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Развивающие психологические игры</title>
+    <meta name="description" content="Набор простых психологических-развивающих игр: реакция, Струп, N-back, память-сетка, дыхание." />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>Развивающие психологические игры</h1>
+      <p class="subtitle">Тренируйте внимание, память, скорость реакции и саморегуляцию</p>
+    </header>
+
+    <div class="layout">
+      <nav class="sidebar" aria-label="Навигация по играм">
+        <ul>
+          <li><button class="nav-btn" data-target="home" aria-controls="home" aria-label="Главная">🏠 Главная</button></li>
+          <li><button class="nav-btn" data-target="reaction" aria-controls="reaction">⚡ Реакция</button></li>
+          <li><button class="nav-btn" data-target="stroop" aria-controls="stroop">🎨 Струп</button></li>
+          <li><button class="nav-btn" data-target="nback" aria-controls="nback">🔁 N-back</button></li>
+          <li><button class="nav-btn" data-target="memory" aria-controls="memory">🧩 Память (сетка)</button></li>
+          <li><button class="nav-btn" data-target="breathing" aria-controls="breathing">🌬️ Дыхание</button></li>
+        </ul>
+      </nav>
+
+      <main class="content" id="content" tabindex="-1">
+        <section id="home" class="view active" aria-labelledby="home-title">
+          <h2 id="home-title">Добро пожаловать!</h2>
+          <p>Выберите игру слева, чтобы начать тренировку когнитивных навыков. Каждая игра сопровождается краткими инструкциями и хранит ваш лучший результат на этом устройстве.</p>
+          <ul class="home-list">
+            <li><strong>Реакция:</strong> измерение скорости реакции на изменение сигнала.</li>
+            <li><strong>Струп:</strong> выбор цвета слова, игнорируя его значение.</li>
+            <li><strong>N-back:</strong> слежение за потоком букв и поиск совпадений с n-позиций назад.</li>
+            <li><strong>Память (сетка):</strong> запоминание и воспроизведение расположения клеток.</li>
+            <li><strong>Дыхание:</strong> метроном для дыхательных циклов (вдох — задержка — выдох).</li>
+          </ul>
+          <p class="disclaimer">Не является медицинским инструментом. Используйте для самотренировки и интереса.</p>
+        </section>
+
+        <section id="reaction" class="view" aria-labelledby="reaction-title">
+          <h2 id="reaction-title">Игра: Реакция</h2>
+          <p>Нажмите «Старт» и ждите, когда экран станет зелёным. Как только станет — кликните/нажмите клавишу как можно быстрее.</p>
+          <div class="card">
+            <div id="reaction-arena" class="reaction-arena" role="button" aria-label="Поле реакции" tabindex="0">Нажмите «Старт»</div>
+            <div class="controls">
+              <button id="reaction-start">Старт</button>
+              <button id="reaction-reset" class="secondary">Сброс</button>
+            </div>
+            <div class="stats" id="reaction-stats"></div>
+          </div>
+        </section>
+
+        <section id="stroop" class="view" aria-labelledby="stroop-title">
+          <h2 id="stroop-title">Игра: Струп</h2>
+          <p>Выберите <strong>цвет</strong> написания слова, игнорируя его смысл. 20 попыток, учитываются точность и время.</p>
+          <div class="card">
+            <div class="stroop-word" id="stroop-word" aria-live="polite">—</div>
+            <div class="stroop-options" id="stroop-options"></div>
+            <div class="controls">
+              <button id="stroop-start">Старт</button>
+              <button id="stroop-reset" class="secondary">Сброс</button>
+            </div>
+            <div class="stats" id="stroop-stats"></div>
+          </div>
+        </section>
+
+        <section id="nback" class="view" aria-labelledby="nback-title">
+          <h2 id="nback-title">Игра: 2-back</h2>
+          <p>Следите за потоком букв. Если текущая буква совпадает с той, что была 2 шага назад — нажмите «Совпадение» или клавишу пробел. 20–30 стимулов.</p>
+          <div class="card">
+            <div class="nback-stream" id="nback-stream" aria-live="polite">—</div>
+            <div class="controls">
+              <button id="nback-start">Старт</button>
+              <button id="nback-match" class="primary">Совпадение (Пробел)</button>
+              <button id="nback-reset" class="secondary">Сброс</button>
+            </div>
+            <div class="stats" id="nback-stats"></div>
+          </div>
+        </section>
+
+        <section id="memory" class="view" aria-labelledby="memory-title">
+          <h2 id="memory-title">Игра: Память (сетка)</h2>
+          <p>Запомните подсвеченные клетки и воспроизведите шаблон. С каждым уровнем сложность растёт.</p>
+          <div class="card">
+            <div class="memory-grid" id="memory-grid" role="grid" aria-label="Сетка для запоминания"></div>
+            <div class="controls">
+              <label>Размер: <select id="memory-size">
+                <option value="3">3×3</option>
+                <option value="4" selected>4×4</option>
+                <option value="5">5×5</option>
+              </select></label>
+              <button id="memory-start">Показать шаблон</button>
+              <button id="memory-reset" class="secondary">Сброс</button>
+            </div>
+            <div class="stats" id="memory-stats"></div>
+          </div>
+        </section>
+
+        <section id="breathing" class="view" aria-labelledby="breathing-title">
+          <h2 id="breathing-title">Дыхательный метроном</h2>
+          <p>Следуйте циклу: вдох — 4, удержание — 4, выдох — 6. Сфокусируйтесь на ощущениях.</p>
+          <div class="card">
+            <div class="breath-circle" id="breath-circle" aria-label="Цикл дыхания"></div>
+            <div class="breath-phase" id="breath-phase">—</div>
+            <div class="controls">
+              <label>Темп: <input id="breath-speed" type="range" min="0.5" max="1.5" step="0.1" value="1" /> <span id="breath-speed-label">1.0×</span></label>
+              <button id="breath-start">Старт</button>
+              <button id="breath-stop" class="secondary">Стоп</button>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <footer class="site-footer">
+      <div>© 2025 ПсихоИгры • Локальное сохранение прогресса</div>
+      <div><a href="#" id="to-top">Наверх ↑</a></div>
+    </footer>
+
+    <script type="module" src="/js/app.js"></script>
+  </body>
+</html>
