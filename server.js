@@ -345,6 +345,8 @@ async function main() {
     res.sendFile(path.join(__dirname, 'intake.html'));
   });
 
+  app.use((req, res) => res.status(404).sendFile(path.join(__dirname, '404.html')));
+
   app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 }
 
