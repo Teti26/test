@@ -160,6 +160,37 @@ async function main() {
     res.json({ ok: true });
   });
 
+  // User profile
+  app.put('/api/user', auth.requireAuth, async (req, res) => {
+    const { name, email } = req.body;
+    if (!name && !email) return res.status(400).json({ error: 'missing_fields' });
+    try {
+      const user = await db.get('SELECT * FROM users WHERE id = ?', req.user.id);
+      if (!user) return res.status(404).json({ error: 'not_found' });
+      const newName = name || user.name;
+      const newEmail = email || user.email;
+      await db.run('UPDATE users SET name = ?, email = ? WHERE id = ?', newName, newEmail, req.user.id);
+      const token = auth.sign({ id: req.user.id, role: req.user.role, email: newEmail, name: newName });
+      res.cookie('token', token, { httpOnly: true });
+      res.json({ ok: true });
+    } catch (e) {
+      if (String(e).includes('UNIQUE')) return res.status(409).json({ error: 'email_exists' });
+      res.status(500).json({ error: 'server_error' });
+    }
+  });
+
+  app.put('/api/user/password', auth.requireAuth, async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) return res.status(400).json({ error: 'missing_fields' });
+    const user = await db.get('SELECT * FROM users WHERE id = ?', req.user.id);
+    if (!user) return res.status(404).json({ error: 'not_found' });
+    const ok = await auth.compare(currentPassword, user.password_hash);
+    if (!ok) return res.status(401).json({ error: 'invalid_password' });
+    const hash = await auth.hash(newPassword);
+    await db.run('UPDATE users SET password_hash = ? WHERE id = ?', hash, req.user.id);
+    res.json({ ok: true });
+  });
+
   // Psychologist endpoints
   app.get('/api/psych/students', auth.requireAuth, async (req, res) => {
     if (req.user.role !== 'psychologist') return res.status(403).json({ error: 'forbidden' });
@@ -339,6 +370,10 @@ async function main() {
 
   app.get('/dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, 'dashboard.html'));
+  });
+
+  app.get('/profile', auth.requireAuth, (req, res) => {
+    res.sendFile(path.join(__dirname, 'profile.html'));
   });
 
   app.get('/intake', (req, res) => {
