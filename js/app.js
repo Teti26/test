@@ -3,6 +3,8 @@ import { initStroopGame } from './games/stroop.js';
 import { initNBackGame } from './games/nback.js';
 import { initMemoryGridGame } from './games/memorygrid.js';
 import { initBreathing } from './games/breathing.js';
+import { initSimonGame } from './games/simon.js';
+import { initGoNoGoGame } from './games/gonogo.js';
 
 async function postResult(gameKey, result) {
   try {
@@ -46,6 +48,8 @@ function init() {
   initStroopGame();
   initNBackGame();
   initMemoryGridGame();
+  initSimonGame();
+  initGoNoGoGame();
   initBreathing();
 }
 
