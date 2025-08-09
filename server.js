@@ -74,6 +74,11 @@ async function createDb() {
       payload TEXT NOT NULL,
       created_at TEXT NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS password_resets (
+      token TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      expires_at TEXT NOT NULL
+    );
   `);
 
   // ensure games exist (idempotent upsert)
@@ -157,6 +162,37 @@ async function main() {
 
   app.post('/api/auth/logout', (req, res) => {
     res.clearCookie('token');
+    res.json({ ok: true });
+  });
+
+  app.post('/api/auth/forgot', async (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'missing_email' });
+    const user = await db.get('SELECT id FROM users WHERE email = ?', email);
+    if (!user) return res.status(404).json({ error: 'not_found' });
+    const token = uuidv4();
+    await db.run('DELETE FROM password_resets WHERE user_id = ?', user.id);
+    await db.run(
+      'INSERT INTO password_resets (token, user_id, expires_at) VALUES (?,?,datetime("now", "+1 hour"))',
+      token,
+      user.id
+    );
+    const link = `http://localhost:${PORT}/reset.html?token=${token}`;
+    console.log('Password reset link for', email, link);
+    res.json({ ok: true });
+  });
+
+  app.post('/api/auth/reset', async (req, res) => {
+    const { token, password } = req.body;
+    if (!token || !password) return res.status(400).json({ error: 'missing_fields' });
+    const row = await db.get(
+      'SELECT * FROM password_resets WHERE token = ? AND expires_at > datetime("now")',
+      token
+    );
+    if (!row) return res.status(400).json({ error: 'bad_token' });
+    const hash = await auth.hash(password);
+    await db.run('UPDATE users SET password_hash = ? WHERE id = ?', hash, row.user_id);
+    await db.run('DELETE FROM password_resets WHERE token = ?', token);
     res.json({ ok: true });
   });
 
