@@ -17,6 +17,7 @@
       .link { color: #7b8cff; }
       .inline { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <header class="site-header">
@@ -94,7 +95,13 @@
         </section>
         <section class="card col-6">
           <h2>Прогресс (последние результаты)</h2>
-          <div id="parent-results"></div>
+          <div id="parent-results">
+            <div class="inline" style="margin-bottom:8px;">
+              <select id="results-child-filter"></select>
+              <select id="results-game-filter"></select>
+            </div>
+            <canvas id="results-chart"></canvas>
+          </div>
         </section>
         <section class="card col-12">
           <h2>Входное тестирование</h2>
@@ -231,16 +238,74 @@
           sbody.appendChild(tr);
         }
         const results = await api('GET', '/api/parent/results');
-        const box = document.getElementById('parent-results');
-        box.innerHTML = '';
-        for (const r of results) {
-          const dt = new Date(r.created_at).toLocaleString();
-          const div = document.createElement('div');
-          div.className = 'card';
-          div.style.marginTop = '8px';
-          div.innerHTML = `<div><strong>${r.child_name}</strong> • ${r.game_name} • ${dt}</div><pre style="white-space:pre-wrap;">${JSON.stringify(r.payload, null, 2)}</pre>`;
-          box.appendChild(div);
+        renderResultsChart(results);
+      }
+
+      function getMetric(gameKey, payload) {
+        switch (gameKey) {
+          case 'reaction':
+            return payload.last ?? payload.best ?? null;
+          case 'stroop':
+            return payload.acc ?? payload.avgRt ?? null;
+          case 'nback':
+            return payload.accPct ?? null;
+          case 'memory':
+            return payload.level ?? payload.failAtLevel ?? null;
+          case 'simon':
+            return payload.level ?? payload.failAtLevel ?? null;
+          case 'gonogo':
+            return payload.accPct ?? null;
+          default:
+            for (const v of Object.values(payload)) if (typeof v === 'number') return v;
+            return null;
         }
+      }
+
+      function renderResultsChart(results) {
+        const box = document.getElementById('parent-results');
+        box.querySelector('#results-child-filter').innerHTML = '';
+        box.querySelector('#results-game-filter').innerHTML = '';
+        const childSelect = box.querySelector('#results-child-filter');
+        const gameSelect = box.querySelector('#results-game-filter');
+        const canvas = box.querySelector('#results-chart');
+
+        const childMap = {};
+        const gameMap = {};
+        for (const r of results) {
+          childMap[r.child_id] = r.child_name;
+          gameMap[r.game_key] = r.game_name;
+        }
+        childSelect.innerHTML = '<option value="">Все дети</option>' +
+          Object.entries(childMap).map(([id,name]) => `<option value="${id}">${name}</option>`).join('');
+        gameSelect.innerHTML = '<option value="">Все игры</option>' +
+          Object.entries(gameMap).map(([key,name]) => `<option value="${key}">${name}</option>`).join('');
+
+        let chart;
+        function update() {
+          const filtered = results.filter(r =>
+            (!childSelect.value || r.child_id === childSelect.value) &&
+            (!gameSelect.value || r.game_key === gameSelect.value)
+          );
+          const dates = Array.from(new Set(filtered.map(r => new Date(r.created_at).toLocaleDateString()))).sort((a,b) => new Date(a) - new Date(b));
+          const groups = {};
+          for (const r of filtered) {
+            const date = new Date(r.created_at).toLocaleDateString();
+            const val = getMetric(r.game_key, r.payload);
+            if (val == null) continue;
+            if (!groups[r.game_key]) groups[r.game_key] = { name: r.game_name, data: {} };
+            groups[r.game_key].data[date] = val;
+          }
+          const datasets = Object.values(groups).map(g => ({
+            label: g.name,
+            data: dates.map(d => g.data[d] ?? null)
+          }));
+          if (chart) chart.destroy();
+          chart = new Chart(canvas, { type: 'line', data: { labels: dates, datasets } });
+        }
+
+        childSelect.addEventListener('change', update);
+        gameSelect.addEventListener('change', update);
+        update();
       }
 
       init();
