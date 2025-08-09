@@ -338,7 +338,15 @@ async function main() {
     res.sendFile(path.join(__dirname, 'login.html'));
   });
 
+  app.get('/', (req, res) => {
+    res.redirect('/login');
+  });
+
   app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dashboard.html'));
+  });
+
+  app.get('/кабинет', (req, res) => {
     res.sendFile(path.join(__dirname, 'dashboard.html'));
   });
 
