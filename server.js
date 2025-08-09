@@ -345,6 +345,10 @@ async function main() {
     res.sendFile(path.join(__dirname, 'intake.html'));
   });
 
+  app.get('/help', (req, res) => {
+    res.sendFile(path.join(__dirname, 'help.html'));
+  });
+
   app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 }
 
