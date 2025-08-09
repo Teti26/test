@@ -22,6 +22,8 @@
           <li><button class="nav-btn" data-target="stroop" aria-controls="stroop">🎨 Струп</button></li>
           <li><button class="nav-btn" data-target="nback" aria-controls="nback">🔁 N-back</button></li>
           <li><button class="nav-btn" data-target="memory" aria-controls="memory">🧩 Память (сетка)</button></li>
+          <li><button class="nav-btn" data-target="simon" aria-controls="simon">🎵 Саймон</button></li>
+          <li><button class="nav-btn" data-target="gonogo" aria-controls="gonogo">🛑 Go/No-Go</button></li>
           <li><button class="nav-btn" data-target="breathing" aria-controls="breathing">🌬️ Дыхание</button></li>
         </ul>
       </nav>
@@ -97,6 +99,33 @@
               <button id="memory-reset" class="secondary">Сброс</button>
             </div>
             <div class="stats" id="memory-stats"></div>
+          </div>
+        </section>
+
+        <section id="simon" class="view" aria-labelledby="simon-title">
+          <h2 id="simon-title">Игра: Саймон</h2>
+          <p>Повторяйте последовательность сигналов. Каждый раунд добавляется новый шаг. Сколько шагов вы выдержите?</p>
+          <div class="card">
+            <div class="simon-board" id="simon-board" role="group" aria-label="Панель кнопок"></div>
+            <div class="controls">
+              <button id="simon-start">Старт</button>
+              <button id="simon-reset" class="secondary">Сброс</button>
+            </div>
+            <div class="stats" id="simon-stats"></div>
+          </div>
+        </section>
+
+        <section id="gonogo" class="view" aria-labelledby="gonogo-title">
+          <h2 id="gonogo-title">Игра: Go/No-Go</h2>
+          <p>Нажимайте при появлении зелёного круга (Go) и не нажимайте при красном (No-Go). 30 испытаний.</p>
+          <div class="card">
+            <div class="gonogo-arena" id="gonogo-stimulus" role="button" aria-label="Стимул" tabindex="0">Нажмите «Старт»</div>
+            <div class="controls">
+              <button id="gonogo-start">Старт</button>
+              <button id="gonogo-stop" class="secondary">Стоп</button>
+              <button id="gonogo-reset" class="secondary">Сброс</button>
+            </div>
+            <div class="stats" id="gonogo-stats"></div>
           </div>
         </section>
 

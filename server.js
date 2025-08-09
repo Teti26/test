@@ -76,19 +76,18 @@ async function createDb() {
     );
   `);
 
-  // seed games
-  const existing = await db.get('SELECT COUNT(*) as c FROM games');
-  if (!existing || existing.c === 0) {
-    const seed = [
-      { key: 'reaction', name: 'Реакция', description: 'Скорость реакции' },
-      { key: 'stroop', name: 'Струп', description: 'Интерференция цвета-слова' },
-      { key: 'nback', name: 'N-back', description: 'Рабочая память' },
-      { key: 'memory', name: 'Память (сетка)', description: 'Зрительная память' },
-      { key: 'breathing', name: 'Дыхание', description: 'Дыхательная тренировка' },
-    ];
-    for (const g of seed) {
-      await db.run('INSERT INTO games (id,key,name,description) VALUES (?,?,?,?)', uuidv4(), g.key, g.name, g.description);
-    }
+  // ensure games exist (idempotent upsert)
+  const desiredGames = [
+    { key: 'reaction', name: 'Реакция', description: 'Скорость реакции' },
+    { key: 'stroop', name: 'Струп', description: 'Интерференция цвета-слова' },
+    { key: 'nback', name: 'N-back', description: 'Рабочая память' },
+    { key: 'memory', name: 'Память (сетка)', description: 'Зрительная память' },
+    { key: 'breathing', name: 'Дыхание', description: 'Дыхательная тренировка' },
+    { key: 'gonogo', name: 'Go/No-Go', description: 'Тормозный контроль' },
+    { key: 'simon', name: 'Саймон', description: 'Последовательная память' },
+  ];
+  for (const g of desiredGames) {
+    await db.run('INSERT OR IGNORE INTO games (id,key,name,description) VALUES (?,?,?,?)', uuidv4(), g.key, g.name, g.description);
   }
 
   return db;

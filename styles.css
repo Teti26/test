@@ -139,3 +139,98 @@ select, input[type="range"] { vertical-align: middle; }
   .sidebar { position: static; }
   .stroop-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+/* Cheerful Theme Overrides */
+:root {
+  --bg: #fff9f3;
+  --panel: #ffffff;
+  --panel-2: #fff6e9;
+  --text: #2b2b2b;
+  --muted: #6b7280;
+  --accent: #ff7ac3;
+  --accent-2: #22c55e;
+  --danger: #ef4444;
+  --ok: #16a34a;
+  --warn: #f59e0b;
+  --shadow: rgba(0,0,0,.08);
+}
+
+body {
+  color: var(--text);
+  background:
+    radial-gradient(1000px 700px at 0% -10%, #ffe7d0, transparent),
+    radial-gradient(900px 600px at 100% 0%, #ffe0f0, transparent),
+    var(--bg);
+}
+
+.site-header h1 { color: #1f2937; }
+
+.sidebar {
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  box-shadow: 0 8px 24px var(--shadow);
+  border: 1px solid #ffe1b5;
+}
+
+.nav-btn {
+  background: #fff;
+  color: #374151;
+  border: 2px solid #ffd1e6;
+  border-radius: 12px;
+  box-shadow: 0 2px 0 #ffc0da;
+}
+
+.nav-btn:hover { background: #fff4f9; border-color: #ffb0d2; }
+
+.card {
+  background: #fff;
+  border: 1px solid #ffe1b5;
+  box-shadow: 0 10px 30px var(--shadow);
+}
+
+button {
+  border: 2px solid #ffd1e6;
+  background: #fff;
+  color: #374151;
+  border-radius: 12px;
+  box-shadow: 0 2px 0 #ffc0da;
+}
+
+button:hover { background: #fff4f9; border-color: #ffb0d2; }
+button.primary { background: #ffe7f2; border-color: #ffb0d2; }
+button.secondary { background: #fff7ed; border-color: #ffd19a; color: #92400e; }
+
+.reaction-arena {
+  border: 2px dashed #ffd1e6;
+  background: #fffaf5;
+  color: #374151;
+}
+.reaction-arena.wait { background: #fff1f1; border-color: #ffcaca; }
+.reaction-arena.ready { background: #f0fff4; border-color: #bbf7d0; }
+
+.nback-stream { color: #374151; }
+
+.memory-grid .cell {
+  background: #fff1f1; border: 2px solid #ffd1e6;
+}
+.memory-grid .cell.on { background: #dbeafe; border-color: #93c5fd; }
+.memory-grid .cell.user-on { background: #bbf7d0; border-color: #86efac; }
+
+/* New games */
+.simon-board { margin-top: 8px; }
+.gonogo-arena {
+  user-select: none;
+  height: 220px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  border: 2px dashed #ffd1e6;
+  background: #fffaf5;
+  font-size: 20px;
+  color: #374151;
+}
+
+.breath-circle {
+  background: radial-gradient(circle at 50% 30%, #ffbbd3, #ffd9e8);
+}
+
+.site-footer { border-top-color: #ffe1b5; color: #6b7280; }
