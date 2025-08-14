@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Восстановление пароля • ПсихоИгры</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <style>
+      .auth-card { max-width: 520px; margin: 40px auto; }
+      .field { display: grid; gap: 6px; margin-bottom: 12px; }
+      .field input { padding: 10px 12px; border-radius: 10px; border: 1px solid #3a3f82; background: #1b1f4a; color: var(--text); }
+      .muted { color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>ПсихоИгры</h1>
+      <p class="subtitle">Сброс пароля</p>
+    </header>
+    <main class="layout" style="grid-template-columns: 1fr;">
+      <section class="card auth-card">
+        <h2>Забыли пароль</h2>
+        <div class="field">
+          <label>Email</label>
+          <input id="email" type="email" placeholder="you@example.com" />
+        </div>
+        <div class="controls">
+          <button id="btn" class="primary">Отправить ссылку</button>
+          <span id="msg" class="muted"></span>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div>© 2025 ПсихоИгры</div>
+      <div><a href="/login.html">← Войти</a></div>
+    </footer>
+    <script>
+      async function post(url, body) {
+        const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const data = await res.json().catch(()=>({}));
+        if (!res.ok) throw new Error(data.error || 'error');
+        return data;
+      }
+      document.getElementById('btn').addEventListener('click', async () => {
+        const email = document.getElementById('email').value.trim();
+        const msg = document.getElementById('msg');
+        msg.textContent = 'Отправка…';
+        try {
+          await post('/api/auth/forgot', { email });
+          msg.textContent = 'Ссылка отправлена (проверьте лог сервера)';
+        } catch (e) {
+          msg.textContent = 'Ошибка: ' + e.message;
+        }
+      });
+    </script>
+  </body>
+</html>
