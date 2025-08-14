@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Профиль • ПсихоИгры</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <style>
+      .container { max-width: 520px; margin: 24px auto; }
+      .field { display: grid; gap: 6px; margin-bottom: 12px; }
+      .field input { padding: 10px 12px; border-radius: 10px; border: 1px solid #3a3f82; background: #1b1f4a; color: var(--text); }
+    </style>
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>Профиль</h1>
+      <p class="subtitle">Редактирование учётных данных</p>
+      <div class="controls"><a href="/dashboard" class="link">К кабинету</a><a href="/login" id="logout" class="link">Выйти</a></div>
+    </header>
+    <main class="layout" style="grid-template-columns: 1fr;">
+      <section class="card container">
+        <h2>Личные данные</h2>
+        <div class="field">
+          <label>Имя</label>
+          <input id="name" type="text" placeholder="Ваше имя" />
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input id="email" type="email" placeholder="you@example.com" />
+        </div>
+        <div class="controls">
+          <button id="save-profile" class="primary">Сохранить</button>
+          <span id="profile-msg" class="muted"></span>
+        </div>
+      </section>
+      <section class="card container">
+        <h2>Смена пароля</h2>
+        <div class="field">
+          <label>Текущий пароль</label>
+          <input id="old-password" type="password" />
+        </div>
+        <div class="field">
+          <label>Новый пароль</label>
+          <input id="new-password" type="password" />
+        </div>
+        <div class="controls">
+          <button id="change-password" class="primary">Обновить</button>
+          <span id="password-msg" class="muted"></span>
+        </div>
+      </section>
+    </main>
+    <footer class="site-footer">
+      <div>© 2025 ПсихоИгры</div>
+      <div><a href="/app">Игры</a></div>
+    </footer>
+    <script src="/js/profile.js"></script>
+  </body>
+</html>
